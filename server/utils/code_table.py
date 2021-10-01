@@ -3,11 +3,18 @@ import logging
 from datetime import datetime
 import pathlib
 from dataclasses import dataclass
-from typing import List
+from typing import List, Iterable
 
 from sortedcontainers import SortedKeyList
 
 from ..config import WORD_DIR
+
+number_key = set(map(str, range(10)))
+sign_key = set(',.":[]{}\\\|~!@#$%^&*()-=_+`')
+select_key = {'space': 0, ';': 1, "'": 2}
+alphabet_key = {chr(ord('a') + i) for i in range(26)}
+for i in number_key:
+    select_key[i] = int(i)
 
 
 @dataclass
@@ -24,6 +31,26 @@ class Word:
 
     def __str__(self) -> str:
         return f"{self.code} {self.word} in {self.file}"
+
+    @classmethod
+    def specific(cls, code, name):
+        return cls('', code, name)
+
+    @classmethod
+    def undefine(cls, code):
+        return cls.specific(code, 'undefine')
+
+    @classmethod
+    def english(cls, code):
+        return cls.specific(code, 'english')
+
+    @classmethod
+    def sign(cls, code):
+        return cls.specific(code, 'sign')
+
+    @classmethod
+    def number(cls, code):
+        return cls.specific(code, 'number')
 
 
 def read_from_file(file_path: pathlib.Path):
@@ -100,6 +127,56 @@ class CodeTable:
                 break
             position += 1
         return ret
+
+    def convert_article(self, keys: Iterable[str]) -> Iterable[Word]:
+        stack = []
+        for key in keys:
+            if key == 'enter' or key == 'esc':
+                if stack:
+                    stack.clear()
+                elif key == 'enter':
+                    yield Word.sign(key)
+                continue
+            if key in select_key:
+                if stack:
+                    code = ''.join(stack)
+                    stack.clear()
+                    yield self.select_th(code, key)
+                else:
+                    if key in number_key:
+                        yield Word.number(key)
+                    else:
+                        yield Word.sign(key)
+            elif key in sign_key:
+                if stack:
+                    yield self.select_th(''.join(stack), 'space')
+                    stack.clear()
+                yield Word.sign(key)
+            elif key not in alphabet_key:
+                continue
+            elif len(stack) < 4:
+                stack.append(key)
+                if len(stack) == 4:
+                    code = ''.join(stack)
+                    words = self.match_exact_code(code, 2, False)
+                    if len(words) == 1:
+                        yield words[0]
+                        stack.clear()
+            else:
+                code = ''.join(stack)
+                words = self.match_exact_code(code, 1, False)
+                if words:
+                    yield words[0]
+                    stack.clear()
+                stack.append(key)
+
+    def select_th(self, code, slt_key):
+        slt_num = select_key[slt_key]
+        words = self.match_exact_code(code, slt_num, False)
+        if len(words) < slt_num + 1:
+            return Word.undefine(code + slt_key)
+        else:
+            return words[slt_num]
 
 
 _table: CodeTable = None
