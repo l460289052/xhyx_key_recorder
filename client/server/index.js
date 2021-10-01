@@ -30,6 +30,16 @@ app.get("/api/search", (res, rep) => {
     })
 })
 
+app.post("/api/set_hook_state", (res, rep) => {
+    console.log(`${new Date().toISOString()} /api/set_hook_state ${res.query.running}`)
+    rep.json({})
+})
+
+app.get("/api/get_hook_state", (res, rep) => {
+    console.log(`${new Date().toISOString()} /api/get_hook_state`)
+    rep.json({running:true})
+})
+
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`)
 })

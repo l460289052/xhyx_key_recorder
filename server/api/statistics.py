@@ -8,7 +8,7 @@ from ..utils.record import LOG_DIR
 api = APIRouter()
 
 
-@api.get("/")
+@api.get("/statistics")
 async def get_info():
     data = defaultdict(int)
     with open(LOG_DIR.joinpath('record.log')) as f:

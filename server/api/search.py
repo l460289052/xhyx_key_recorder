@@ -4,7 +4,7 @@ from ..utils import code_table
 api = APIRouter()
 
 
-@api.get('/')
+@api.get('/search')
 async def search(code: str):
     data = []
     if len(code):
