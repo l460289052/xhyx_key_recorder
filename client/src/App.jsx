@@ -48,7 +48,7 @@ function App() {
       <Sider collapsible collapsedWidth="0" trigger={null} collapsed={collapsed}>
         <div className="block">
         </div>
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', height: '40px', margin: '10px 0' }}>
           <p style={{ display: 'inline', color: 'white' }}>运行状态</p>
           <Button type="primary" size="small" danger={!running}
             onClick={e => {

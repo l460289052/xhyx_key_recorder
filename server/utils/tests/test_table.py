@@ -24,11 +24,11 @@ def test_simple_convert():
     dic = {
         ' ': 'space'
     }
-    article = 'v u;yidrceuiigxu,t;yg keyipc ts;b;'
+    article = 'v u yidrceuiigxu,t;yg keyipc ts;b;'
     article = [dic.get(key, key) for key in article]
     result = table.convert_article(article)
     result = ''.join(res.word for res in result)
-    assert result == '这时一段测试程序sign它应该可以跑通吧'
+    assert result == '这是一段测试程序,它应该可以跑通吧'
 
 
 def test_log_convert():
@@ -40,4 +40,4 @@ def test_log_convert():
             keys.append(row[1].strip())
     result = table.convert_article(keys)
     result = ''.join(res.word for res in result)
-    result = '运行状态sign搜索码表sign按键统计signsign分析sign加载个人及系统配置文件用了numbernumbernumber毫秒sign故意输错sign其实根本没有错的啦'
+    assert result == '运行状态 搜索码表 按键统计  分析 加载个人及系统配置文件用了673毫秒enter故意输错:其实根本没有错的啦'

@@ -1,3 +1,4 @@
+from enum import Enum
 import math
 import logging
 from datetime import datetime
@@ -16,14 +17,27 @@ alphabet_key = {chr(ord('a') + i) for i in range(26)}
 for i in number_key:
     select_key[i] = int(i)
 
+shown_word = {
+    'space': ' '
+}
+
+
+class CodeType(str, Enum):
+    Word = "Word"
+    Undefine = "Undefine"
+    Sign = "Sign"
+    Num = "Num"
+    Alpha = "Alpha"
+
 
 @dataclass
 class Word:
-    file: str
     code: str
     word: str
+    file: str
     top: bool = False
     priority: int = None
+    typ: CodeType = CodeType.Word
 
     @property
     def key(self):
@@ -33,24 +47,8 @@ class Word:
         return f"{self.code} {self.word} in {self.file}"
 
     @classmethod
-    def specific(cls, code, name):
-        return cls('', code, name)
-
-    @classmethod
-    def undefine(cls, code):
-        return cls.specific(code, 'undefine')
-
-    @classmethod
-    def english(cls, code):
-        return cls.specific(code, 'english')
-
-    @classmethod
-    def sign(cls, code):
-        return cls.specific(code, 'sign')
-
-    @classmethod
-    def number(cls, code):
-        return cls.specific(code, 'number')
+    def specific(cls, code, typ: CodeType):
+        return cls(code, shown_word.get(code, code), '', typ=typ)
 
 
 def read_from_file(file_path: pathlib.Path):
@@ -72,7 +70,7 @@ def read_from_file(file_path: pathlib.Path):
                 else:
                     top = False
 
-                word = Word(file_name, row[1], row[0],
+                word = Word(row[1], row[0], file_name,
                             top, float(row[2]) if len(row) > 2 else None)
                 ret.append(word)
             except:
@@ -135,36 +133,30 @@ class CodeTable:
                 if stack:
                     stack.clear()
                 elif key == 'enter':
-                    yield Word.sign(key)
+                    yield Word.specific(key, CodeType.Sign)
                 continue
             if key in select_key:
                 if stack:
-                    code = ''.join(stack)
+                    yield self.select_th(''.join(stack), key)
                     stack.clear()
-                    yield self.select_th(code, key)
                 else:
-                    if key in number_key:
-                        yield Word.number(key)
-                    else:
-                        yield Word.sign(key)
+                    yield Word.specific(key, CodeType.Num if key in number_key else CodeType.Sign)
             elif key in sign_key:
                 if stack:
                     yield self.select_th(''.join(stack), 'space')
                     stack.clear()
-                yield Word.sign(key)
+                yield Word.specific(key, CodeType.Sign)
             elif key not in alphabet_key:
                 continue
             elif len(stack) < 4:
                 stack.append(key)
                 if len(stack) == 4:
-                    code = ''.join(stack)
-                    words = self.match_exact_code(code, 2, False)
+                    words = self.match_exact_code(''.join(stack), 2, False)
                     if len(words) == 1:
                         yield words[0]
                         stack.clear()
             else:
-                code = ''.join(stack)
-                words = self.match_exact_code(code, 1, False)
+                words = self.match_exact_code(''.join(stack), 1, False)
                 if words:
                     yield words[0]
                     stack.clear()
@@ -174,7 +166,7 @@ class CodeTable:
         slt_num = select_key[slt_key]
         words = self.match_exact_code(code, slt_num, False)
         if len(words) < slt_num + 1:
-            return Word.undefine(code + slt_key)
+            return Word.specific(code + slt_key, CodeType.Undefine)
         else:
             return words[slt_num]
 
