@@ -1,39 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import 'antd/dist/antd.css'
 import './App.css';
 import { Layout, Menu } from 'antd'
-import { AppstoreAddOutlined, AreaChartOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import PageStatistics from './pages/statistics'
+import { AreaChartOutlined, InfoCircleOutlined, SearchOutlined } from '@ant-design/icons';
+import { PageSearch, PageStatistics } from './pages/pages'
 
 const { Header, Footer, Content, Sider } = Layout;
 const Slider = Sider;
 
 
 var Pages = {
+  Search: "Search",
   Statistics: "Statistics",
   Analysis: "Analysis"
 }
 
 function Page(props) {
   switch (props.page) {
+    case Pages.Statistics:
+      return <PageStatistics />
     case Pages.Analysis:
       console.log(222)
       return <p>Analysis</p>;
-    case Pages.Statistics:
+
+    case Pages.Search:
     default:
-      return <PageStatistics />
+      return <PageSearch />
   }
 }
 
 
 function App() {
   var [collapsed, setCollapsed] = useState(false);
-  var [page, setPage] = useState(Pages.Statistics)
+  var [page, setPage] = useState(Pages.Search)
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Slider collapsible collapsed={collapsed} onCollapse={(collapsed, type) => setCollapsed(collapsed)}>
         <div className="block" />
-        <Menu theme="dark" defaultActiveFirst mode="inline" onClick={(info) => { setPage(info.key); }}>
+        <Menu theme="dark" mode="inline" onClick={(info) => { setPage(info.key); }}>
+          <Menu.Item key={Pages.Search} icon={<SearchOutlined />}>搜索码表</Menu.Item>
           <Menu.Item key={Pages.Statistics} icon={<InfoCircleOutlined />} >按键统计</Menu.Item>
           <Menu.Item key={Pages.Analysis} icon={<AreaChartOutlined />}>分析</Menu.Item>
         </Menu>

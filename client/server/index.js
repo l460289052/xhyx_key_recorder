@@ -19,6 +19,17 @@ app.get("/api/statistics", (res, rep) => {
     })
 })
 
+app.get("/api/search", (res, rep) => {
+    console.log(`${new Date().toISOString()} /api/search ${res.query.code}`)
+    var data = Array()
+    for (var i = 0; i < 30; ++i) {
+        data.push({ file: "default", code: res.query.code, word: "这是测试123" })
+    }
+    rep.json({
+        data: data
+    })
+})
+
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`)
 })

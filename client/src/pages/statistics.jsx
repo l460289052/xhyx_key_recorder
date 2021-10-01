@@ -1,4 +1,5 @@
 import { Table } from "antd";
+import axios from "axios";
 import { useEffect, useState } from "react";
 
 const columns = [
@@ -17,9 +18,8 @@ const columns = [
 function Statistics() {
     var [data, setData] = useState([])
 
-    useEffect(() => fetch('/api/statistics')
-        .then(rep => rep.json())
-        .then(rep => setData(rep.data)), [])
+    useEffect(() => axios.get('/api/statistics')
+        .then(rep => setData(rep.data.data)), [])
     return (
         <Table columns={columns} dataSource={data} />
     )
