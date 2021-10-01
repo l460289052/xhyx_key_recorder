@@ -4,11 +4,6 @@ import axios from "axios"
 
 const columns = [
     {
-        title: '文件',
-        dataIndex: 'file',
-        key: 'file'
-    },
-    {
         title: '编码',
         dataIndex: 'code',
         key: 'code'
@@ -17,6 +12,11 @@ const columns = [
         title: '词条',
         dataIndex: 'word',
         key: 'word'
+    },
+    {
+        title: '文件',
+        dataIndex: 'file',
+        key: 'file'
     }
 ]
 

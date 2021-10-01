@@ -1,13 +1,13 @@
 from fastapi import APIRouter
 import keyboard
-from ..record import record
+from ..utils.record import record
 api = APIRouter(tags=['control'])
 
 remove_handler = None
 
 
 @api.get("/api/start")
-def start_hook():
+async def start_hook():
     global remove_handler
     ret = "none"
     if remove_handler is None:
@@ -17,7 +17,7 @@ def start_hook():
 
 
 @api.get("/api/stop")
-def stop_hook():
+async def stop_hook():
     global remove_handler
     if remove_handler is not None:
         remove_handler()

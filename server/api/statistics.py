@@ -3,13 +3,13 @@ from collections import defaultdict
 
 from fastapi import APIRouter
 
-from ..record import LOG_DIR
+from ..utils.record import LOG_DIR
 
 api = APIRouter()
 
 
 @api.get("/")
-def get_info():
+async def get_info():
     data = defaultdict(int)
     with open(LOG_DIR.joinpath('record.log')) as f:
         reader = csv.reader(f)

@@ -6,8 +6,8 @@ from logging.handlers import TimedRotatingFileHandler
 import keyboard
 
 from .get_language import is_chinese
+from ..config import LOG_DIR
 
-LOG_DIR = pathlib.Path(__file__).absolute().parents[1].joinpath("logs")
 handler = TimedRotatingFileHandler(LOG_DIR.joinpath("record.log"), "midnight")
 handler.suffix = "%Y-%m-%d"
 logger = logging.getLogger("key")
