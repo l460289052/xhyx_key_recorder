@@ -1,25 +1,41 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'antd/dist/antd.css'
 import './App.css';
 import { Layout, Menu } from 'antd'
 import { AppstoreAddOutlined, AreaChartOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import PageStatistics from './pages/statistics'
+
 const { Header, Footer, Content, Sider } = Layout;
 const Slider = Sider;
-const { SubMenu } = Menu;
 
+
+var Pages = {
+  Statistics: "Statistics",
+  Analysis: "Analysis"
+}
+
+function Page(props) {
+  switch (props.page) {
+    case Pages.Analysis:
+      console.log(222)
+      return <p>Analysis</p>;
+    case Pages.Statistics:
+    default:
+      return <PageStatistics />
+  }
+}
 
 
 function App() {
   var [collapsed, setCollapsed] = useState(false);
-  var [page, setPage] = useState("1")
-
+  var [page, setPage] = useState(Pages.Statistics)
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Slider collapsible collapsed={collapsed} onCollapse={(collapsed, type) => setCollapsed(collapsed)}>
         <div className="block" />
-        <Menu theme="dark" defaultActiveFirst mode="inline" onClick={(info) => { setPage(info.key) }}>
-          <Menu.Item key="1" icon={<InfoCircleOutlined />} >按键统计</Menu.Item>
-          <Menu.Item key="2" icon={<AreaChartOutlined />}>分析</Menu.Item>
+        <Menu theme="dark" defaultActiveFirst mode="inline" onClick={(info) => { setPage(info.key); }}>
+          <Menu.Item key={Pages.Statistics} icon={<InfoCircleOutlined />} >按键统计</Menu.Item>
+          <Menu.Item key={Pages.Analysis} icon={<AreaChartOutlined />}>分析</Menu.Item>
         </Menu>
       </Slider>
       <Layout className="site-layout">
@@ -27,7 +43,7 @@ function App() {
         <Content style={{ margin: '0 16px' }}>
           <p>Title</p>
           <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
-            123321
+            <Page page={page}></Page>
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>333</Footer>
