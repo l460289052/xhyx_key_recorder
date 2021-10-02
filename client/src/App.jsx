@@ -49,16 +49,17 @@ function App() {
         <div className="block">
         </div>
         <div style={{ textAlign: 'center', height: '40px', margin: '10px 0' }}>
-          <p style={{ display: 'inline', color: 'white' }}>运行状态</p>
-          <Button type="primary" size="small" danger={!running}
-            onClick={e => {
-              axios.post("/api/set_hook_state", {}, { params: { running: !running } })
-                .then(rep => setRunning(!running))
-            }}
-          >
-            {running ? "运行中" : "未运行"}
-          </Button>
-
+          <Space>
+            <p style={{ display: 'inline', color: 'white' }}>运行状态</p>
+            <Button type="primary" size="small" danger={!running}
+              onClick={e => {
+                axios.post("/api/set_hook_state", {}, { params: { running: !running } })
+                  .then(rep => setRunning(!running))
+              }}
+            >
+              {running ? "运行中" : "未运行"}
+            </Button>
+          </Space>
         </div>
         <Menu theme="dark" mode="inline" onClick={(info) => { setPage(info.key); }}>
           <Menu.Item key={Pages.Search} icon={<SearchOutlined />}>{ShownName[Pages.Search]}</Menu.Item>

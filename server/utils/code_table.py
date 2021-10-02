@@ -14,11 +14,13 @@ number_key = set(map(str, range(10)))
 sign_key = set(',.":[]{}\\\|~!@#$%^&*()-=_+`')
 select_key = {'space': 0, ';': 1, "'": 2}
 alphabet_key = {chr(ord('a') + i) for i in range(26)}
+alphabet_key.update({chr(ord('A') + i) for i in range(26)})
 for i in number_key:
     select_key[i] = int(i)
 
 shown_word = {
-    'space': ' '
+    'space': ' ',
+    'backspace': '<-'
 }
 
 
@@ -31,13 +33,12 @@ class CodeType(str, Enum):
 
 
 @dataclass
-class Word:
+class TableWord:
     code: str
     word: str
     file: str
     top: bool = False
     priority: int = None
-    typ: CodeType = CodeType.Word
 
     @property
     def key(self):
@@ -46,9 +47,25 @@ class Word:
     def __str__(self) -> str:
         return f"{self.code} {self.word} in {self.file}"
 
+
+@dataclass
+class InputWord:
+    code: str
+    word: str
+    committer: str
+    typ: CodeType = CodeType.Word
+
     @classmethod
-    def specific(cls, code, typ: CodeType):
-        return cls(code, shown_word.get(code, code), '', typ=typ)
+    def special(cls, code, committer, typ: CodeType):
+        return cls(code, shown_word.get(code, code), committer, typ)
+
+    def json(self):
+        return {
+            "code": self.code,
+            "word": self.word,
+            "committer": self.committer,
+            "type": self.typ.value
+        }
 
 
 def read_from_file(file_path: pathlib.Path):
@@ -70,8 +87,8 @@ def read_from_file(file_path: pathlib.Path):
                 else:
                     top = False
 
-                word = Word(row[1], row[0], file_name,
-                            top, float(row[2]) if len(row) > 2 else None)
+                word = TableWord(row[1], row[0], file_name,
+                                 top, float(row[2]) if len(row) > 2 else None)
                 ret.append(word)
             except:
                 exception = logging.getLogger('exception')
@@ -82,10 +99,10 @@ def read_from_file(file_path: pathlib.Path):
 
 class CodeTable:
     def __init__(self) -> None:
-        self.words: List[Word] = []
-        self.codes_dict: SortedKeyList[Word] = SortedKeyList(
+        self.words: List[TableWord] = []
+        self.codes_dict: SortedKeyList[TableWord] = SortedKeyList(
             key=lambda word: word.key)
-        self.words_dict: SortedKeyList[Word] = SortedKeyList(
+        self.words_dict: SortedKeyList[TableWord] = SortedKeyList(
             key=lambda word: word.word)
         self.modify_time = datetime.now()
 
@@ -112,11 +129,11 @@ class CodeTable:
         self.words_dict.update(self.words)
         self.modify_time = datetime.now()
 
-    def match_exact_code(self, pattern, max_number, same: bool) -> List[Word]:
+    def match_exact_code(self, pattern, max_number, same: bool) -> List[TableWord]:
         position = self.codes_dict.bisect_key_left((pattern, False, -math.inf))
         ret = []
         while position < len(self.codes_dict):
-            word: Word = self.codes_dict[position]
+            word: TableWord = self.codes_dict[position]
             if (word.code == pattern if same else word.code.startswith(pattern)):
                 ret.append(word)
                 if len(ret) > max_number:
@@ -126,49 +143,58 @@ class CodeTable:
             position += 1
         return ret
 
-    def convert_article(self, keys: Iterable[str]) -> Iterable[Word]:
+    def convert_article(self, keys: Iterable[str]) -> Iterable[InputWord]:
         stack = []
         for key in keys:
-            if key == 'enter' or key == 'esc':
+            key = key.strip()
+            if key == 'backspace':
                 if stack:
-                    stack.clear()
-                elif key == 'enter':
-                    yield Word.specific(key, CodeType.Sign)
-                continue
-            if key in select_key:
+                    stack.pop()
+                else:
+                    yield InputWord.special(key, '', CodeType.Sign)
+            if key == 'enter' or key == 'esc' or key == 'shift':
+                if key != 'esc':
+                    if stack:
+                        yield InputWord.special(''.join(stack), key, CodeType.Alpha)
+                    elif key != 'shift':
+                        yield InputWord.special(key, '', CodeType.Sign)
+                stack.clear()
+            elif key in select_key:
                 if stack:
                     yield self.select_th(''.join(stack), key)
                     stack.clear()
                 else:
-                    yield Word.specific(key, CodeType.Num if key in number_key else CodeType.Sign)
+                    yield InputWord.special(key, '', CodeType.Num if key in number_key else CodeType.Sign)
             elif key in sign_key:
                 if stack:
-                    yield self.select_th(''.join(stack), 'space')
+                    yield self.select_th(''.join(stack), key)
                     stack.clear()
-                yield Word.specific(key, CodeType.Sign)
+                yield InputWord.special(key, '', CodeType.Sign)
             elif key not in alphabet_key:
                 continue
             elif len(stack) < 4:
                 stack.append(key)
                 if len(stack) == 4:
-                    words = self.match_exact_code(''.join(stack), 2, False)
+                    code = ''.join(stack)
+                    words = self.match_exact_code(code, 2, False)
                     if len(words) == 1:
-                        yield words[0]
+                        yield InputWord(code, words[0].word, '')
                         stack.clear()
             else:
-                words = self.match_exact_code(''.join(stack), 1, False)
+                code = ''.join(stack)
+                words = self.match_exact_code(code, 1, False)
                 if words:
-                    yield words[0]
+                    yield InputWord(code, words[0].word, key)
                     stack.clear()
                 stack.append(key)
 
     def select_th(self, code, slt_key):
-        slt_num = select_key[slt_key]
+        slt_num = select_key.get(slt_key, 0)
         words = self.match_exact_code(code, slt_num, False)
         if len(words) < slt_num + 1:
-            return Word.specific(code + slt_key, CodeType.Undefine)
+            return InputWord.special(code, slt_key, CodeType.Undefine)
         else:
-            return words[slt_num]
+            return InputWord(code, words[slt_num].word, slt_key)
 
 
 _table: CodeTable = None
