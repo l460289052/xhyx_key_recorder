@@ -1,10 +1,12 @@
-from enum import Enum
-import math
+from itertools import chain
 import logging
-from datetime import datetime
+import math
 import pathlib
 from dataclasses import dataclass
-from typing import List, Iterable
+from datetime import datetime
+from enum import Enum
+from typing import Iterable, List, Tuple, Deque
+from collections import deque
 
 from sortedcontainers import SortedKeyList
 
@@ -143,6 +145,20 @@ class CodeTable:
             position += 1
         return ret
 
+    def match_exact_word(self, pattern, max_number, same: bool) -> List[TableWord]:
+        position = self.words_dict.bisect_key_left(pattern)
+        ret = []
+        while position < len(self.words_dict):
+            word: TableWord = self.words_dict[position]
+            if (word.word == pattern if same else word.word.startswith(pattern)):
+                ret.append(word)
+                if len(ret) > max_number:
+                    break
+            else:
+                break
+            position += 1
+        return ret
+
     def convert_article(self, keys: Iterable[str]) -> Iterable[InputWord]:
         stack = []
         for key in keys:
@@ -187,6 +203,59 @@ class CodeTable:
                     yield InputWord(code, words[0].word, key)
                     stack.clear()
                 stack.append(key)
+
+    def optim_article(self, article: Iterable[InputWord]) -> Iterable[Tuple[List[InputWord], List[InputWord]]]:
+        old_words: Deque[InputWord] = deque()
+        last_str: str = ''
+        last_codes: List[TableWord] = None
+
+        for word in chain(article, [InputWord('stopper', '!@#$', '')]):
+            tmp_str = last_str + word.word
+
+            tmp_codes = self.match_exact_word(
+                tmp_str, 1000, False)
+            if tmp_codes:
+                old_words.append(word)
+                last_codes = tmp_codes
+                last_str = tmp_str
+                continue
+            elif not old_words:
+                continue
+
+            old_code = []
+            for old_word in old_words:
+                old_code.append(old_word.code + '*')
+
+            old_code = ''.join(old_code)
+            min_len = len(old_code) - 1
+            if min_len == 4:
+                min_len = 3
+            ret = []
+            for code in last_codes:
+                words = self.match_exact_code(code.code, 100, True)
+                for ind, new_word in enumerate(words):
+                    if ind > 5:
+                        break
+                    if new_word.word == last_str:
+                        code_len = len(new_word.code) + 1
+                        if min_len >= code_len:
+                            ret.append(
+                                (code_len, list(old_words), [InputWord(new_word.code, new_word.word, str(ind + 1))]))
+                            min_len = code_len
+            for r in ret:
+                if r[0] == min_len:
+                    yield r[1], r[2]
+
+            old_words.clear()
+            tmp_str = word.word
+            tmp_codes = self.match_exact_word(tmp_str, 1000, False)
+            if tmp_codes:
+                old_words.append(word)
+                last_codes = tmp_codes
+                last_str = tmp_str
+            else:
+                last_codes = None
+                last_str = ''
 
     def select_th(self, code, slt_key):
         slt_num = select_key.get(slt_key, 0)

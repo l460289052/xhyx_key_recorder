@@ -1,4 +1,4 @@
-import { Checkbox, Divider, Button, Space, Tooltip } from "antd"
+import { Checkbox, Divider, Button, Space, Tooltip, Table } from "antd"
 import axios from "axios"
 import { useEffect, useState } from "react"
 
@@ -10,11 +10,30 @@ function WordItem(item) {
     )
 }
 
-function RecordView(words) {
-    console.log(words)
+function ArticleView(words) {
     return <Space style={{ background: "#FAFAFA" }} wrap>
         {words.map(WordItem)}
     </Space>
+}
+
+const columns = [
+    {
+        title: '输入',
+        dataIndex: 'old',
+        key: 'old',
+        render: old_words => old_words.map(WordItem)
+    },
+    {
+        title: '建议',
+        dataIndex: 'new',
+        key: 'new',
+        render: new_words => new_words.map(WordItem)
+    }
+]
+
+function OptimView(words) {
+    return <Table columns={columns} dataSource={words} />
+
 }
 
 function Analysis() {
@@ -38,8 +57,10 @@ function Analysis() {
                     onChange={e => setCheckedList(e.target.checked ? options : [])}>选择全部文件</Checkbox>
                 <Button onClick={e =>
                     axios.post("/api/get_article", { records: checkedList })
-                        .then(rep => setContent(RecordView(rep.data.data)))}>查看</Button>
-                <Button type="primary">分析</Button>
+                        .then(rep => setContent(ArticleView(rep.data.data)))}>查看</Button>
+                <Button type="primary" onClick={e =>
+                    axios.post("/api/get_optim", { records: checkedList })
+                        .then(rep => setContent(OptimView(rep.data.data)))}>分析</Button>
             </Space>
             <Divider />
             {content}

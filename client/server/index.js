@@ -51,6 +51,36 @@ app.post("/api/get_article", (res, rep) => {
     })
 })
 
+app.post("/api/get_optim", (res, rep) => {
+    console.log(`${new Date().toISOString()} /api/get_optim ${res.body}`)
+    rep.json({
+        'data': [{
+            'old': [{ 'code': 'szso', 'word': '搜索', 'committer': '', 'type': 'Word' }],
+            'new': [{ 'code': 'ss', 'word': '搜索', 'committer': '2', 'type': 'Word' }]
+        },
+        {
+            'old': [{ 'code': 'xits', 'word': '系统', 'committer': '', 'type': 'Word' }],
+            'new': [{ 'code': 'xit', 'word': '系统', 'committer': '1', 'type': 'Word' }]
+        },
+        {
+            'old': [{ 'code': 'pwvi', 'word': '配置', 'committer': '', 'type': 'Word' }],
+            'new': [{ 'code': 'pv', 'word': '配置', 'committer': '1', 'type': 'Word' }]
+        },
+        {
+            'old': [{ 'code': 'gfbf', 'word': '根本', 'committer': '', 'type': 'Word' }],
+            'new': [{ 'code': 'gb', 'word': '根本', 'committer': '1', 'type': 'Word' }]
+        },
+        {
+            'old': [{ 'code': 'ykys', 'word': '应用', 'committer': '', 'type': 'Word' }],
+            'new': [{ 'code': 'yky', 'word': '应用', 'committer': '1', 'type': 'Word' }]
+        },
+        {
+            'old': [{ 'code': 'ggxb', 'word': '更新', 'committer': '', 'type': 'Word' }],
+            'new': [{ 'code': 'gx', 'word': '更新', 'committer': '2', 'type': 'Word' }]
+        }]
+    })
+})
+
 app.post("/api/set_hook_state", (res, rep) => {
     console.log(`${new Date().toISOString()} /api/set_hook_state ${res.query.running}`)
     rep.json({})
