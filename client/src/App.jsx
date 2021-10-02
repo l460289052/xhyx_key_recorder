@@ -3,7 +3,7 @@ import 'antd/dist/antd.css'
 import './App.css';
 import { Button, Layout, Menu, Space, Switch } from 'antd'
 import { AreaChartOutlined, InfoCircleOutlined, MenuFoldOutlined, MenuUnfoldOutlined, SearchOutlined } from '@ant-design/icons';
-import { PageSearch, PageStatistics } from './pages/pages'
+import { PageSearch, PageStatistics, PageAnalysis } from './pages/pages'
 import axios from 'axios';
 
 const { Header, Footer, Content, Sider } = Layout;
@@ -26,7 +26,7 @@ function Page(props) {
     case Pages.Statistics:
       return <PageStatistics />
     case Pages.Analysis:
-      return <p>Analysis</p>;
+      return <PageAnalysis />
 
     case Pages.Search:
     default:
@@ -36,13 +36,13 @@ function Page(props) {
 
 
 function App() {
-  var [collapsed, setCollapsed] = useState(true);
+  var [collapsed, setCollapsed] = useState(false);
   var [running, setRunning] = useState(false)
   var [page, setPage] = useState(Pages.Search)
 
   useEffect(() => axios.get("/api/get_hook_state")
     .then(rep => setRunning(rep.data.running))
-    , [])
+    , [running])
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsedWidth="0" trigger={null} collapsed={collapsed}>
@@ -53,8 +53,7 @@ function App() {
           <Button type="primary" size="small" danger={!running}
             onClick={e => {
               axios.post("/api/set_hook_state", {}, { params: { running: !running } })
-                .then(rep => axios.get("/api/get_hook_state")
-                  .then(rep => setRunning(rep.data.running)))
+                .then(rep => setRunning(!running))
             }}
           >
             {running ? "运行中" : "未运行"}

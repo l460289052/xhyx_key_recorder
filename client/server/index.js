@@ -30,6 +30,14 @@ app.get("/api/search", (res, rep) => {
     })
 })
 
+app.get("/api/get_records", (res, rep) => {
+    console.log(`${new Date().toISOString()} /api/get_records`)
+    rep.json({
+        data:['record.log', 'record.log.2021-10-01']
+    })
+
+})
+
 app.post("/api/set_hook_state", (res, rep) => {
     console.log(`${new Date().toISOString()} /api/set_hook_state ${res.query.running}`)
     rep.json({})
