@@ -10,8 +10,7 @@ async def search(code: str):
     if len(code):
         table = code_table.get_table()
         for word in table.match_exact_code(code, 100, len(code) <= 2):
-            data.append({
-                "code": word.code,
-                "word": word.word,
-                "file": word.file})
+            data.append(word.dict())
+        for word in table.match_exact_word(code, 100, len(code)<2):
+            data.append(word.dict())
     return {"data": data}

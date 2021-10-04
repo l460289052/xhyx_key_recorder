@@ -49,6 +49,13 @@ class TableWord:
     def __str__(self) -> str:
         return f"{self.code} {self.word} in {self.file}"
 
+    def dict(self):
+        return {
+            "code": self.code,
+            "word": self.word,
+            "file": self.file
+        }
+
 
 @dataclass
 class InputWord:
@@ -61,7 +68,7 @@ class InputWord:
     def special(cls, code, committer, typ: CodeType):
         return cls(code, shown_word.get(code, code), committer, typ)
 
-    def json(self):
+    def dict(self):
         return {
             "code": self.code,
             "word": self.word,

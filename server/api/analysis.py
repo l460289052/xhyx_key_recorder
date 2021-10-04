@@ -40,7 +40,7 @@ def get_keys(req: GetRecordReq):
 async def get_article(name_keys=Depends(get_keys), table: CodeTable = Depends(get_table)):
     data = []
     for name, keys in name_keys:
-        data.extend([word.json() for word in table.convert_article(keys)])
+        data.extend([word.dict() for word in table.convert_article(keys)])
     return {'data': data}
 
 
@@ -51,7 +51,7 @@ async def get_optim(name_keys=Depends(get_keys), table: CodeTable = Depends(get_
         article = table.convert_article(keys)
         for row in table.optim_article(article):
             data.append({
-                "old": [word.json() for word in row[0]],
-                "new": [word.json() for word in row[1]]
+                "old": [word.dict() for word in row[0]],
+                "new": [word.dict() for word in row[1]]
             })
     return {'data': data}
