@@ -8,7 +8,6 @@ a = Analysis(['key_recorder.py'],
              binaries=[],
              datas=[
                 ('words/码表.txt','words/'),
-                ('server/static','server/static')
              ],
              hiddenimports=[
                 'pkg_resources',
