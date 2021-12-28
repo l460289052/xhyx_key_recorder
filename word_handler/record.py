@@ -20,13 +20,13 @@ def record(e: keyboard.KeyboardEvent):
         if last_key == e.name == "ctrl":
             queue.put("-MOVE-")
         last_key = e.name
-    if not is_chinese():
-        return pressed_hotkeys.clear()
+    # if not is_chinese():
+    #     return pressed_hotkeys.clear()
 
     if e.name in hotkeys:
         if e.event_type == keyboard.KEY_DOWN:
             pressed_hotkeys.add(e.name)
-        else:
+        elif e.name in pressed_hotkeys:
             pressed_hotkeys.remove(e.name)
         return
 
@@ -37,3 +37,5 @@ def record(e: keyboard.KeyboardEvent):
     if isinstance(time, float):
         time = datetime.fromtimestamp(time)
     queue.put(e.name)
+    if not is_chinese():
+        queue.put("space")

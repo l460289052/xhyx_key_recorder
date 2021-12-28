@@ -69,6 +69,7 @@ while True:
 
             case "-MOVE-":
                 win.move(*word_handler.get_win.get_cursor_position())
+                win_pos.clear()
 
             case "-WORD-":
                 word: word_handler.code_table.InputWord = values["-WORD-"]

@@ -21,7 +21,7 @@ class WinPosition:
         if self.x_bias is None:
             return None
         pos = get_win.get_caret_position()
-        print(pos)
+        # print(pos)
         if pos:
             self.pos = (pos[0] + self.x_bias, pos[1] + self.y_bias)
             return self.pos
