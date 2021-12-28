@@ -72,6 +72,10 @@ def is_chinese():
     return get_language_id() == 0x804
 
 
+def get_cursor_position():
+    return win32gui.GetCursorPos()
+
+
 def get_caret_position():
     fg_win = win32gui.GetForegroundWindow()
     try:

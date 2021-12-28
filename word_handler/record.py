@@ -11,8 +11,15 @@ pressed_hotkeys = set()
 
 queue = Queue()
 
+last_key = None
+
 
 def record(e: keyboard.KeyboardEvent):
+    global last_key
+    if e.event_type == keyboard.KEY_DOWN:
+        if last_key == e.name == "ctrl":
+            queue.put("-MOVE-")
+        last_key = e.name
     if not is_chinese():
         return pressed_hotkeys.clear()
 

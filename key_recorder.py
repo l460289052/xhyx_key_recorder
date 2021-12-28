@@ -11,7 +11,7 @@ import PySimpleGUI as sg
 layout = [[sg.Text("", auto_size_text=True, key="-pbyb-"), sg.Checkbox("跟随", enable_events=True, key="Follow"), sg.Button("开始", key="Toggle")],
           [sg.Text("", auto_size_text=True, key="-hjzi-"), sg.Button("关闭", key="Cancel")]]
 win = sg.Window("key optimizer", layout, no_titlebar=True,
-                keep_on_top=True, alpha_channel=.7, grab_anywhere=True)
+                keep_on_top=True, alpha_channel=.7, grab_anywhere=True, font="微软雅黑")
 
 remover = None
 word_getter = None
@@ -27,9 +27,13 @@ def get_word(win: sg.Window):
     def get_key():
         while True:
             key = word_handler.record.queue.get()
-            if key == "Stop":
-                return
-            yield key
+            match key:
+                case "Stop":
+                    return
+                case "-MOVE-":
+                    win.write_event_value("-MOVE-", True)
+                case _:
+                    yield key
 
     for word in table.convert_article(get_key()):
         win.write_event_value("-WORD-", word)
@@ -59,8 +63,12 @@ while True:
                     remover = keyboard.hook(word_handler.record.record)
 
             case "Follow":
-                if not values["Follow"]: # cannot update in here, because there is not caret when toggling checkbox
+                # cannot update in here, because there is not caret when toggling checkbox
+                if not values["Follow"]:
                     win_pos.clear()
+
+            case "-MOVE-":
+                win.move(*word_handler.get_win.get_cursor_position())
 
             case "-WORD-":
                 word: word_handler.code_table.InputWord = values["-WORD-"]
