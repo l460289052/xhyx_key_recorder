@@ -1,5 +1,3 @@
-import logging
-import pathlib
 from datetime import datetime
 from multiprocessing import Queue
 

@@ -128,7 +128,7 @@ class CodeTable:
                 return True
         return False
 
-    def load_from(self):
+    def load(self):
         self.clear()
 
         for p in WORD_DIR.iterdir():
@@ -207,7 +207,7 @@ class CodeTable:
                 code = ''.join(stack)
                 words = self.match_exact_code(code, 1, False)
                 if words:
-                    yield InputWord(code, words[0].word, key)
+                    yield InputWord(code, words[0].word, '')
                     stack.clear()
                 stack.append(key)
 
@@ -281,5 +281,5 @@ def get_table():
     if _table is None:
         _table = CodeTable()
     if _table.need_load():
-        _table.load_from()
+        _table.load()
     return _table

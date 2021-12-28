@@ -1,6 +1,9 @@
 import ctypes
-user32 = ctypes.WinDLL('user32', use_last_error=True)
+import win32gui
+import win32process
+import win32api
 
+user32 = ctypes.windll.user32
 
 languages = {'0x436': "Afrikaans - South Africa", '0x041c': "Albanian - Albania", '0x045e': "Amharic - Ethiopia", '0x401': "Arabic - Saudi Arabia",
              '0x1401': "Arabic - Algeria", '0x3c01': "Arabic - Bahrain", '0x0c01': "Arabic - Egypt", '0x801': "Arabic - Iraq", '0x2c01': "Arabic - Jordan",
@@ -48,15 +51,10 @@ languages = {'0x436': "Afrikaans - South Africa", '0x041c': "Albanian - Albania"
 
 
 def get_language_id():
-    # Get the current active window handle
-    handle = user32.GetForegroundWindow()
-    # Get the thread id from that window handle
-    threadid = user32.GetWindowThreadProcessId(handle, 0)
-    # Get the keyboard layout id from the threadid
-    layout_id = user32.GetKeyboardLayout(threadid)
-    # Extract the keyboard language id from the keyboard layout id
+    fg_win = win32gui.GetForegroundWindow()
+    fg_thread, fg_process = win32process.GetWindowThreadProcessId(fg_win)
+    layout_id = win32api.GetKeyboardLayout(fg_thread)
     language_id = layout_id & (2 ** 16 - 1)
-    # Convert the keyboard language id from decimal to hexadecimal
     return language_id
 
 
@@ -72,3 +70,19 @@ def get_language():
 
 def is_chinese():
     return get_language_id() == 0x804
+
+
+def get_caret_position():
+    fg_win = win32gui.GetForegroundWindow()
+    try:
+        fg_thread, fg_process = win32process.GetWindowThreadProcessId(fg_win)
+        current_thread = win32api.GetCurrentThreadId()
+        win32process.AttachThreadInput(current_thread, fg_thread, True)
+        pt = win32gui.GetCaretPos()
+        pt = win32gui.ClientToScreen(fg_win, pt)
+        return pt
+    except:
+        return None
+    finally:
+        win32process.AttachThreadInput(
+            current_thread, fg_thread, False)  # detach
