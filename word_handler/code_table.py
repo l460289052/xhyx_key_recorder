@@ -1,13 +1,15 @@
-from itertools import chain
 import logging
 import math
 import pathlib
+import re
+from collections import deque
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Iterable, List, Tuple, Deque
-from collections import deque
+from itertools import chain
+from typing import Deque, Iterable, List, Tuple
 
+from PySimpleGUI.PySimpleGUI import Output
 from sortedcontainers import SortedKeyList
 
 from .config import WORD_DIR
@@ -104,6 +106,15 @@ def read_from_file(file_path: pathlib.Path):
                 exception.info(f"无法识别此行：{line}，位于文件{file_name}的{line_number}行")
 
         return ret
+
+
+def convert_from_andriod(in_path: pathlib.Path, out_path: pathlib.Path):
+    pattern = re.compile(r"^(\w+)=(\d+),(.+)$")
+    with in_path.open('r', encoding='utf_16_le') as r, out_path.open('w', encoding='utf8') as w:
+        for line in r:
+            match = pattern.match(line)
+            groups = match.groups()
+            w.write(f"{groups[2]}\t{groups[0]}\t{101-int(groups[1])}")
 
 
 class CodeTable:
