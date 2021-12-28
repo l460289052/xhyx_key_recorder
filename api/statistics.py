@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from fastapi import APIRouter
 
-from ..utils.record import LOG_DIR
+from ..word_handler.record import LOG_DIR
 
 api = APIRouter()
 

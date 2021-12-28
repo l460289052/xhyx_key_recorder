@@ -1,7 +1,7 @@
 import logging
 import pathlib
 
-ROOT_PATH = pathlib.Path(__file__).parents[1]
+ROOT_PATH = pathlib.Path(__file__).parent.parent
 LOG_DIR = ROOT_PATH.joinpath("logs")
 if not LOG_DIR.exists():
     LOG_DIR.mkdir()

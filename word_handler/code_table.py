@@ -10,7 +10,7 @@ from collections import deque
 
 from sortedcontainers import SortedKeyList
 
-from ..config import WORD_DIR
+from .config import WORD_DIR
 
 number_key = set(map(str, range(10)))
 sign_key = set(',.":[]{}\\\|~!@#$%^&*()-=_+`')

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from ..utils import code_table
+from ..word_handler import code_table
 
 api = APIRouter()
 

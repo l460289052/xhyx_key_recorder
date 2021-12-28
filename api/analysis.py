@@ -2,8 +2,8 @@ import csv
 import pydantic
 from typing import List
 from fastapi import APIRouter, Body, Depends
-from ..utils.record import LOG_DIR
-from ..utils.code_table import get_table, CodeTable
+from ..word_handler.record import LOG_DIR
+from ..word_handler.code_table import get_table, CodeTable
 api = APIRouter()
 
 

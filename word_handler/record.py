@@ -1,21 +1,17 @@
 import logging
 import pathlib
 from datetime import datetime
-from logging.handlers import TimedRotatingFileHandler
+from multiprocessing import Queue
 
 import keyboard
 
-from .get_language import is_chinese
-from ..config import LOG_DIR
+from .get_win import is_chinese
 
-handler = TimedRotatingFileHandler(LOG_DIR.joinpath("record.log"), "midnight")
-handler.suffix = "%Y-%m-%d"
-logger = logging.getLogger("key")
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
 
 hotkeys = {'ctrl', 'alt'}
 pressed_hotkeys = set()
+
+queue = Queue()
 
 
 def record(e: keyboard.KeyboardEvent):
@@ -35,5 +31,4 @@ def record(e: keyboard.KeyboardEvent):
     time = e.time
     if isinstance(time, float):
         time = datetime.fromtimestamp(time)
-    key_logger = logging.getLogger("key")
-    key_logger.info(f"{time}, {e.name}")
+    queue.put(e.name)
