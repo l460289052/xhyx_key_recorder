@@ -35,8 +35,12 @@ def get_word(win: sg.Window):
                 case _:
                     yield key
 
-    for word in table.convert_article(get_key()):
-        win.write_event_value("-WORD-", word)
+    try:
+        for word in table.convert_article(get_key()):
+            win.write_event_value("-WORD-", word)
+    except Exception as e:
+        import logging
+        logging.getLogger("exception").exception(e)
 
 
 while True:
@@ -97,7 +101,6 @@ while True:
                     win.move(*pos)
     except Exception as e:
         import logging
-        logger = logging.getLogger("exception")
-        logger.exception(e)
+        logging.getLogger("exception").exception(e)
 
 win.close()
