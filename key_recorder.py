@@ -32,6 +32,8 @@ def get_word(win: sg.Window):
                     return
                 case "-MOVE-":
                     win.write_event_value("-MOVE-", True)
+                case None:
+                    pass
                 case _:
                     yield key
 

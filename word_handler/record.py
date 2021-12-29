@@ -34,9 +34,6 @@ def record(e: keyboard.KeyboardEvent):
         if e.event_type == keyboard.KEY_UP or pressed_hotkeys:
             return
 
-        time = e.time
-        if isinstance(time, float):
-            time = datetime.fromtimestamp(time)
         queue.put(e.name)
         if not is_chinese():
             queue.put("space")
