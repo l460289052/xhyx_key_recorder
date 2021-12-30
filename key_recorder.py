@@ -4,6 +4,8 @@ import threading
 import word_handler
 import keyboard
 import ctypes
+
+from word_handler import code_table
 ctypes.windll.user32.SetProcessDPIAware()
 
 import PySimpleGUI as sg
@@ -67,7 +69,10 @@ while True:
                 if word is None:
                     continue
                 now_word.append(word.word)
-                code.append(word.code)
+                if word.committer:
+                    code.append(word.code + " ")
+                else:
+                    code.append(word.code)
                 while not table.match_exact_word("".join(now_word), 1, False):
                     now_word.popleft()
                     code.popleft()
@@ -75,7 +80,7 @@ while True:
                 if ret:
                     ret.sort(key=lambda word: len(word.code))
                     ret = ret[0]
-                    if len(ret.code) < len(" ".join(code)):
+                    if len(ret.code) + 1 < len("".join(code)):
                         pbyb: sg.Text = win["-pbyb-"]
                         pbyb.update(ret.code)
                         hjzi: sg.Text = win["-hjzi-"]
