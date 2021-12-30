@@ -36,7 +36,7 @@ def record(e: keyboard.KeyboardEvent):
 
         queue.put(e.name)
         if not is_chinese():
-            queue.put("space")
+            queue.put("enter")
     except Exception as e:
         import logging
         logging.getLogger("exception").exception(e)

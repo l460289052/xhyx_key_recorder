@@ -1,17 +1,26 @@
-from collections import deque
+import ctypes
+import os
+import pathlib
 import threading
+from collections import deque
+from PySimpleGUI.PySimpleGUI import popup_notify
+
+import keyboard
 
 import word_handler
-import keyboard
-import ctypes
-
 from word_handler import code_table
+
 ctypes.windll.user32.SetProcessDPIAware()
 
 import PySimpleGUI as sg
 
-layout = [[sg.Text("", auto_size_text=True, key="-pbyb-")],
-          [sg.Text("", auto_size_text=True, key="-hjzi-"), sg.Button("关闭", key="Cancel")]]
+layout = [
+    [
+        sg.Text("", auto_size_text=True, key="-pbyb-"),
+        sg.ButtonMenu("更多", ["", ["转换", "打开LOG"]], key="-MORE-")],
+    [
+        sg.Text("", auto_size_text=True, key="-hjzi-"),
+        sg.Button("关闭", key="Cancel")]]
 win = sg.Window("key optimizer", layout, no_titlebar=True,
                 keep_on_top=True, alpha_channel=.7, grab_anywhere=True, font="微软雅黑")
 
@@ -85,6 +94,32 @@ while True:
                         pbyb.update(ret.code)
                         hjzi: sg.Text = win["-hjzi-"]
                         hjzi.update(ret.word)
+
+            case "-MORE-":
+                match values["-MORE-"]:
+                    case "转换":
+                        try:
+                            f_in = sg.filedialog.askopenfilename(
+                                title="请选择安卓百度个性短语文件", filetypes=(("安卓个性短语文件", '*.ini'),))
+                            if f_in:
+                                f_in = pathlib.Path(f_in)
+                                f_out = sg.filedialog.asksaveasfilename(
+                                    defaultextension=".txt",
+                                    filetypes=(("词库文件", '*.txt'),))
+                                if f_out:
+                                    f_out = pathlib.Path(f_out)
+                                    word_handler.code_table.convert_from_andriod(
+                                        f_in, f_out)
+                                else:
+                                    raise ValueError()
+                            else:
+                                raise ValueError()
+                        except ValueError:
+                            sg.popup_notify(title="已取消")
+
+                    case "打开LOG":
+                        os.system(
+                            f"notepad {word_handler.config.LOG_DIR.joinpath('exception.txt').absolute()}")
 
     except Exception as e:
         import logging

@@ -110,11 +110,17 @@ def read_from_file(file_path: pathlib.Path):
 
 def convert_from_andriod(in_path: pathlib.Path, out_path: pathlib.Path):
     pattern = re.compile(r"^(\w+)=(\d+),(.+)$")
-    with in_path.open('r', encoding='utf_16_le') as r, out_path.open('w', encoding='utf8') as w:
-        for line in r:
-            match = pattern.match(line)
-            groups = match.groups()
-            w.write(f"{groups[2]}\t{groups[0]}\t{101-int(groups[1])}")
+    import codecs
+    with in_path.open('r', encoding='utf_16') as r, out_path.open('w', encoding='utf8') as w:
+        for num, line in enumerate(r):
+            try:
+                match = pattern.match(line)
+                groups = match.groups()
+                print(
+                    f"{groups[2]}\t{groups[0]}\t{101-int(groups[1])}", file=w)
+            except:
+                logging.getLogger("exception").info(
+                    f"无法识别此行：{line}，位于文件{in_path}的{num}行")
 
 
 class CodeTable:
