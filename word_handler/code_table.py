@@ -86,7 +86,7 @@ def read_from_file(file_path: pathlib.Path):
         for line_number, line in enumerate(f):
             line = line.strip()
             try:
-                if not line or line.startswith('#') or line.startswith('---'):
+                if not line or line.startswith(('#', '---')):
                     continue
                 row = line.split('\t')
                 if len(row) < 2:

@@ -89,7 +89,8 @@ while True:
                 if ret:
                     ret.sort(key=lambda word: len(word.code))
                     ret = ret[0]
-                    if len(ret.code) + 1 < len("".join(code)):
+                    code_len = len("".join(code))
+                    if len(ret.code) + 1 < code_len or len(ret.code) == code_len - 1 == 4 and len(table.match_exact_code(ret.code, 2, True)) == 1:
                         pbyb: sg.Text = win["-pbyb-"]
                         pbyb.update(ret.code)
                         hjzi: sg.Text = win["-hjzi-"]
